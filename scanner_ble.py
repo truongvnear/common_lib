@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import asyncio
 from asyncio.streams import StreamReaderProtocol
 import sys
@@ -14,13 +16,19 @@ async def main():
 
     print('Searching for devices...')
     devices = await BleakScanner.discover()
-    print('Please select a devcice:')
+    print('Please select a devcice or enter "q" key to exit:')
     for idx, d in enumerate(devices):
-        print(f'  {(idx+1):02d}. {d}')
+        # print(f'  {(idx+1):02d}. {d}')
+        if d.name is not None:
+            print(f'  {(idx+1):02d}. {d}')
+        # else:
+        #     print(f'  {(idx+1):02d}. (No name)')
 
     selection = None
     while selection is None:
         select = input('Enter the device number: ')
+        if 'q' in select :
+            return
         try:
             selection = int(select) - 1
             if selection >= len(devices):
@@ -50,6 +58,6 @@ async def main():
         data_read = await client.read_gatt_char(char_uuid)
         # print(data_read)
         data_int = int.from_bytes(data_read, byteorder='big')
-        print("Battery: ",data_int)
+        print(f"Battery capacity: {data_int} %")
 
 asyncio.run(main())
